@@ -29,6 +29,13 @@ class RoutingRule(Base):
     regex_pattern = Column(String)
     redirect_model = Column(String)
 
+class FileRoutingRule(Base):
+    __tablename__ = "file_routing_rules"
+    id = Column(Integer, primary_key=True, index=True)
+    file_type = Column(String, unique=True)
+    redirect_provider = Column(String)
+    redirect_model = Column(String)
+
 Base.metadata.create_all(bind=engine)
 
 # Ensure models are added to the database
@@ -84,12 +91,22 @@ def admin_page():
     return templates.TemplateResponse("admin.html", {"request": {}})
 
 @app.post("/upload/")
-def upload_file(file: UploadFile = File(...)):
+def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
     upload_dir = Path("uploads")
     upload_dir.mkdir(exist_ok=True)
+    file_ext = file.filename.split(".")[-1].lower()
     file_path = upload_dir / file.filename
     with file_path.open("wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
+
+    rule = db.query(FileRoutingRule).filter(FileRoutingRule.file_type == file_ext).first()
+    if rule:
+        return {
+            "filename": file.filename,
+            "provider": rule.redirect_provider,
+            "model": rule.redirect_model,
+            "response": f"{rule.redirect_provider}: File processed with AI model {rule.redirect_model}."
+        }
     return {"filename": file.filename, "response": "File uploaded successfully."}
 
 @app.post("/admin/add_regex")
@@ -102,3 +119,23 @@ def add_regex_rule(original_model: str = Form(...), regex_pattern: str = Form(..
 @app.get("/admin/rules")
 def get_regex_rules(db: Session = Depends(get_db)):
     return db.query(RoutingRule).all()
+
+@app.post("/admin/add_file_routing")
+def add_file_routing_rule(
+        file_type: str = Form(...),
+        redirect_provider: str = Form(...),
+        redirect_model: str = Form(...),
+        db: Session = Depends(get_db)
+):
+    new_rule = FileRoutingRule(
+        file_type=file_type,
+        redirect_provider=redirect_provider,
+        redirect_model=redirect_model
+    )
+    db.add(new_rule)
+    db.commit()
+    return RedirectResponse(url="/admin", status_code=303)
+
+@app.get("/admin/file_rules")
+def get_file_routing_rules(db: Session = Depends(get_db)):
+    return db.query(FileRoutingRule).all()

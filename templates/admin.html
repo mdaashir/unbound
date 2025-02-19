@@ -23,14 +23,47 @@
 <h2>Existing Rules</h2>
 <ul id="rules-list"></ul>
 
+<h2>Manage File Routing</h2>
+<form action="/admin/add_file_routing" method="post">
+    <label for="file_type">File Type (e.g., pdf, txt):</label>
+    <input type="text" id="file_type" name="file_type" required>
+
+    <label for="redirect_provider">Redirect Provider:</label>
+    <input type="text" id="redirect_provider" name="redirect_provider" required>
+
+    <label for="redirect_model">Redirect Model:</label>
+    <input type="text" id="redirect_model" name="redirect_model" required>
+
+    <button type="submit">Add File Routing Rule</button>
+</form>
+<h2>Existing File Routing Rules</h2>
+<ul id="file-rules-list"></ul>
+
 <script>
-    fetch("/admin/rules").then(response => response.json()).then(rules => {
-        let rulesList = document.getElementById("rules-list");
-        rules.forEach(rule => {
-            let li = document.createElement("li");
-            li.textContent = `${rule.original_model} -> ${rule.regex_pattern} -> ${rule.redirect_model}`;
-            rulesList.appendChild(li);
-        });
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("/admin/rules")
+            .then(response => response.json())
+            .then(rules => {
+                let rulesList = document.getElementById("rules-list");
+                rules.forEach(rule => {
+                    let li = document.createElement("li");
+                    li.textContent = `${rule.original_model} -> ${rule.regex_pattern} -> ${rule.redirect_model}`;
+                    rulesList.appendChild(li);
+                });
+            })
+            .catch(error => console.error("Error fetching rules:", error));
+
+        fetch("/admin/file_rules")
+            .then(response => response.json())
+            .then(rules => {
+                let rulesList = document.getElementById("file-rules-list");
+                rules.forEach(rule => {
+                    let li = document.createElement("li");
+                    li.textContent = `.${rule.file_type} -> ${rule.redirect_provider} -> ${rule.redirect_model}`;
+                    rulesList.appendChild(li);
+                });
+            })
+            .catch(error => console.error("Error fetching file rules:", error));
     });
 </script>
 </body>

@@ -24,20 +24,31 @@
 
     <button type="submit">Send</button>
 </form>
+
+<h2>Upload a File</h2>
+<form action="/upload/" method="post" enctype="multipart/form-data">
+    <label for="file">Choose File:</label>
+    <input type="file" id="file" name="file" required>
+    <button type="submit">Upload</button>
+</form>
+
 <div id="response"></div>
 
 <script>
-    fetch("/models")
-        .then(response => response.json())
-        .then(models => {
-            let modelSelect = document.getElementById("model");
-            models.forEach(model => {
-                let option = document.createElement("option");
-                option.value = model;
-                option.textContent = model;
-                modelSelect.appendChild(option);
-            });
-        });
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("/models")
+            .then(response => response.json())
+            .then(models => {
+                let modelSelect = document.getElementById("model");
+                models.forEach(model => {
+                    let option = document.createElement("option");
+                    option.value = model;
+                    option.textContent = model;
+                    modelSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching models:", error));
+    });
 </script>
 </body>
 </html>

@@ -28,3 +28,4 @@ fabric.properties
 .venv/*
 .env
 __Pycache__/
+uploads/
