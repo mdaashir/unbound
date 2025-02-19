@@ -27,3 +27,4 @@ fabric.properties
 # Python Environment
 .venv/*
 .env
+__Pycache__/

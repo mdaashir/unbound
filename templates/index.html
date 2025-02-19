@@ -1,0 +1,43 @@
+<!-- index.html - Chat UI -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Interface</title>
+</head>
+<body>
+<h1>Chat UI</h1>
+<form action="/v1/chat/completions" method="post">
+    <label for="provider">Provider:</label>
+    <select id="provider" name="provider" required>
+        <option value="openai">OpenAI</option>
+        <option value="anthropic">Anthropic</option>
+        <option value="gemini">Gemini</option>
+    </select>
+
+    <label for="model">Model:</label>
+    <select id="model" name="model" required></select>
+
+    <label for="prompt">Prompt:</label>
+    <input type="text" id="prompt" name="prompt" required>
+
+    <button type="submit">Send</button>
+</form>
+<div id="response"></div>
+
+<script>
+    fetch("/models")
+        .then(response => response.json())
+        .then(models => {
+            let modelSelect = document.getElementById("model");
+            models.forEach(model => {
+                let option = document.createElement("option");
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+            });
+        });
+</script>
+</body>
+</html>

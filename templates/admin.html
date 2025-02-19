@@ -1,0 +1,37 @@
+<!-- admin.html - Admin Portal -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal</title>
+</head>
+<body>
+<h1>Admin Portal</h1>
+<form action="/admin/add_regex" method="post">
+    <label for="original_model">Original Model:</label>
+    <input type="text" id="original_model" name="original_model" required>
+
+    <label for="regex_pattern">Regex Pattern:</label>
+    <input type="text" id="regex_pattern" name="regex_pattern" required>
+
+    <label for="redirect_model">Redirect Model:</label>
+    <input type="text" id="redirect_model" name="redirect_model" required>
+
+    <button type="submit">Add Rule</button>
+</form>
+<h2>Existing Rules</h2>
+<ul id="rules-list"></ul>
+
+<script>
+    fetch("/admin/rules").then(response => response.json()).then(rules => {
+        let rulesList = document.getElementById("rules-list");
+        rules.forEach(rule => {
+            let li = document.createElement("li");
+            li.textContent = `${rule.original_model} -> ${rule.regex_pattern} -> ${rule.redirect_model}`;
+            rulesList.appendChild(li);
+        });
+    });
+</script>
+</body>
+</html>
